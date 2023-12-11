@@ -41,18 +41,17 @@ func seed_to_location(seeds []int, amap []config_maps) int {
 		}
 
 		temp_input = s
-		temp_out = -1
+		temp_out = s
 
 		for _, m := range amap {
 			for _, fields := range m.maps_fields {
-				if temp_input >= fields.src && temp_input <= fields.src+fields.range_len {
+				if temp_input >= fields.src && temp_input < fields.src+fields.range_len {
 					temp_out = fields.dest + (temp_input - fields.src)
 					break
 				}
 			}
-			if temp_out != -1 {
-				temp_input = temp_out
-			}
+			//fmt.Printf("%d -> %d ", temp_input, temp_out)
+			temp_input = temp_out
 		}
 		if min_location == 0 {
 			min_location = temp_out
@@ -127,28 +126,30 @@ func main() {
 	dat, err := os.ReadFile("./input.txt")
 	check(err)
 
-	default_maps := 10
+	default_maps := 7
 	lines := strings.Split(string(dat), "\n")
 	almanac_map := make([]config_maps, default_maps)
 	for i := 0; i < default_maps; i++ {
-		almanac_map[i].maps_fields = make([]maps_field, 200)
+		almanac_map[i].maps_fields = make([]maps_field, 50)
 	}
 
-	input_seeds := make([]int, 100000)
+	input_seeds := make([]int, 20)
 	seeds := make([]int, 1)
 
 	parse_config(lines, input_seeds, almanac_map)
+
+	//fmt.Println(almanac_map, input_seeds)
 
 	//seeds_index := 0
 	min := 0
 	for i := 0; i < len(input_seeds); i += 2 {
 		start := input_seeds[i]
 		range_v := input_seeds[i+1]
-		if start == 0 || range_v == 0 {
+		if start == 0 && range_v == 0 {
 			continue
 		}
 		fmt.Println("between ", start, "and range ", range_v, " start min ", min)
-		for j := 0; j <= range_v; j++ {
+		for j := 0; j < range_v; j++ {
 			seeds[0] = start + j
 			ret := seed_to_location(seeds, almanac_map)
 			if min == 0 {
@@ -156,10 +157,13 @@ func main() {
 			} else if ret < min {
 				min = ret
 			}
+			if j%10000000 == 0 {
+				fmt.Printf(".")
+			}
 			//seeds[seeds_index] = start + j
 			//seeds_index += 1
 		}
-		fmt.Println("between ", start, "and range ", range_v, " final min ", min)
+		fmt.Println("\nbetween ", start, "and range ", range_v, " final min ", min)
 	}
 
 	fmt.Println("final min = ", min)
