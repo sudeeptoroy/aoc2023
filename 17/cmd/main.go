@@ -61,8 +61,8 @@ func main() {
 
 	for piq.Len() > 0 {
 		g := heap.Pop(&piq).(*gridMapQ)
-		fmt.Println(g, len(lines), len(lines[0]))
-		if g.r == len(lines)-1 && g.c == len(lines[0])-1 {
+		//fmt.Println(g, len(lines), len(lines[0]))
+		if g.r == len(lines)-2 && g.c == len(lines[0])-1 && g.n >= 4 {
 			fmt.Println(g.r, g.c, "cost: ", g.hl)
 			break
 		}
@@ -73,7 +73,7 @@ func main() {
 		}
 		seen[s] = 1
 
-		if g.n < 3 && g.dr != 0 && g.dc != 0 {
+		if g.n < 10 && !(g.dr == 0 && g.dc == 0) {
 			nr := g.r + g.dr
 			nc := g.c + g.dc
 			if 0 <= nr && nr < len(lines)-1 && 0 <= nc && nc < len(lines[0]) {
@@ -84,20 +84,21 @@ func main() {
 		}
 
 		nextSteps := [][]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
-		for _, v := range nextSteps {
-			if ((v[0] == g.dr && v[1] == g.dc) || (v[0] == -g.dr && v[1] == -g.dc)) == false {
-				nr := g.r + v[0]
-				nc := g.c + v[1]
-				if 0 <= nr && nr < len(lines)-1 && 0 <= nc && nc < len(lines[0]) {
-					cost, _ := strconv.Atoi(string((lines[nr][nc])))
-					q := gridMapQ{g.hl + cost, nr, nc, v[0], v[1], 1}
-					heap.Push(&piq, &q)
+		if g.n >= 4 || (g.dr == 0 && g.dc == 0) {
+			for _, v := range nextSteps {
+				if !(v[0] == g.dr && v[1] == g.dc) && !(v[0] == -g.dr && v[1] == -g.dc) {
+					nr := g.r + v[0]
+					nc := g.c + v[1]
+					if 0 <= nr && nr < len(lines)-1 && 0 <= nc && nc < len(lines[0]) {
+						cost, _ := strconv.Atoi(string((lines[nr][nc])))
+						q := gridMapQ{g.hl + cost, nr, nc, v[0], v[1], 1}
+						heap.Push(&piq, &q)
+					}
 				}
 			}
 		}
 
 	}
 
-	fmt.Println(seen)
 	fmt.Println("vim-go")
 }
